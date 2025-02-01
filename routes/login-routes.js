@@ -3,7 +3,7 @@ const bcryptjs = require("bcryptjs");
 const UserModel = require("../database/db");
 const route = Router();
 const z = require("zod");
-const hashSalt = 10;
+const HASH_SALT = process.env.HASH_SALT;
 const jwt = require("jsonwebtoken");
 const SECRET_KEY = process.env.SECRET_KEY;
 const {
@@ -33,7 +33,7 @@ route.post("/sign-up", checkUserExists, async (req, res) => {
     if (checkedCredentials.success === false) {
       res.json({ msg: "Enter Valid Credentials" });
     }
-    const hashPassword = await bcryptjs.hash(password, hashSalt);
+    const hashPassword = await bcryptjs.hash(password, HASH_SALT);
     const newUser = await UserModel.create({
       name,
       email,
@@ -86,7 +86,7 @@ route.put("/update-data", checkUserLoggedIn, async (req, res) => {
   if (!checkedCredentials.success)
     return res.json({ msg: "Enter Valid credentials" });
   if (password) {
-    const hashPassword = await bcryptjs.hash(password, hashSalt);
+    const hashPassword = await bcryptjs.hash(password, HASH_SALT);
     updateData.password = hashPassword;
   }
   if (name) {
