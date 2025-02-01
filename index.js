@@ -2,7 +2,8 @@ require("dotenv").config()
 
 const bodyParser = require("body-parser");
 const express = require("express");
-const route = require("./routes/login-routes");
+const loginRoute = require("./routes/login-routes");
+const accountRoute = require("./routes/accounts-routes")
 const cors = require("cors")
 const app = express()
 const PORT = process.env.PORT
@@ -11,8 +12,8 @@ const PORT = process.env.PORT
 app.use(cors())
 app.use(bodyParser.json())
 
-app.use("/user", route)
-
+app.use("/user", loginRoute)
+app.use("/account", accountRoute)
 
 
 //I If any route is not defind this will show
