@@ -16,7 +16,7 @@ const Account = require("../database/bank");
 const credentialsCheck = z.object({
   name: z.string(),
   email: z.string().email().min(4),
-  password: z.string().min(6),
+  password: z.string().min(5),
 });
 
 //sign-up route
@@ -32,7 +32,7 @@ route.post("/sign-up", checkUserExists, async (req, res) => {
     });
     if (checkedCredentials.success === false) {
       return res.json({ msg: "Enter Valid Credentials" });
-    };
+    }
     const hashPassword = await bcryptjs.hash(password, HASH_SALT);
     const newUser = await UserModel.create({
       name,
@@ -41,8 +41,8 @@ route.post("/sign-up", checkUserExists, async (req, res) => {
     });
     await Account.create({
       userId: newUser._id,
-      balance: (Math.random() * 10000).toFixed(4)
-    })
+      balance: (Math.random() * 10000).toFixed(4),
+    });
     const token = jwt.sign({ name, email }, SECRET_KEY);
     res.json({ msg: "User Created successfully", token });
   } catch (error) {
@@ -111,12 +111,31 @@ route.get("/bulk", checkUserLoggedIn, async (req, res) => {
   const regex = new RegExp(`^${filter}`, "i");
   try {
     const matchedUsers = await UserModel.find({
-      name: regex,
+      $or: [{ name: regex }, { email: regex }],
+      _id: { $ne: req.dbUserId },
     }).select("-password");
     res.json({ matchedUsers });
   } catch (error) {
     res.status(500).json({ msg: "Error while finding" });
   }
 });
+
+//get my details
+route.get("/myinfo",checkUserLoggedIn, async (req, res) => {
+  try {
+    const myDetails = await UserModel.findOne({_id: req.dbUserId}).select("-password")
+    const bankDetails = await Account.find({userId: req.dbUserId}).select("balance")
+    const userData = {
+      name: myDetails.name,
+      email: myDetails.email,
+      balance: bankDetails.balance,
+      _id: req.dbUserId
+    }
+    res.json({info: userData})
+  } catch (error) {
+    res.status(500).json({msg: "Some internal error occured"})
+  }
+
+})
 
 module.exports = route;
