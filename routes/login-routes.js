@@ -124,7 +124,8 @@ route.get("/bulk", checkUserLoggedIn, async (req, res) => {
 route.get("/myinfo",checkUserLoggedIn, async (req, res) => {
   try {
     const myDetails = await UserModel.findOne({_id: req.dbUserId}).select("-password")
-    const bankDetails = await Account.find({userId: req.dbUserId}).select("balance")
+    const bankDetails = await Account.findOne({userId: req.dbUserId}).select("balance")
+    
     const userData = {
       name: myDetails.name,
       email: myDetails.email,
