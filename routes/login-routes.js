@@ -136,7 +136,19 @@ route.get("/myinfo",checkUserLoggedIn, async (req, res) => {
   } catch (error) {
     res.status(500).json({msg: "Some internal error occured"})
   }
-
 })
+
+route.get("/userinfo/:id", checkUserLoggedIn, async (req, res) => {
+  try {
+    const userInfo = await UserModel.findById(req.params.id).select("-password")
+    if(userInfo) {
+      return res.json({userInfo})
+    }
+    res.status(400).json({msg: "User Doesnot Exist"})
+  } catch (error) {
+    res.status(500).json({msg: "Some internal erro occured"})
+  }
+})
+
 
 module.exports = route;
