@@ -19,11 +19,16 @@ const checkUserLoggedIn = async (req, res, next) => {
   if (!authorization) return res.status(403).json({ msg: "You are not Logged in" });
   const token = authorization.split(" ")[1]
   const isValid = jwt.verify(token, SECRET_KEY);
-  const user = await UserModel.findOne({email: isValid.email})
-  if (isValid) {
-    req.dbEmail = isValid.email;
-    req.dbUserId = user._id
-    return next();
+  try {
+    const user = await UserModel.findOne({email: isValid.email})
+    if (isValid) {
+      req.dbEmail = isValid.email;
+      req.dbUserId = user._id
+      return next();
+    }
+    
+  } catch (error) {
+    res.status(500).json({msg: "Some error occured"})
   }
 };
 

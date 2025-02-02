@@ -3,7 +3,7 @@ const bcryptjs = require("bcryptjs");
 const UserModel = require("../database/db");
 const route = Router();
 const z = require("zod");
-const HASH_SALT = process.env.HASH_SALT;
+const HASH_SALT = Number(process.env.HASH_SALT);
 const jwt = require("jsonwebtoken");
 const SECRET_KEY = process.env.SECRET_KEY;
 const {
@@ -16,7 +16,7 @@ const Account = require("../database/bank");
 const credentialsCheck = z.object({
   name: z.string(),
   email: z.string().email().min(4),
-  password: z.string().min(5),
+  password: z.string().min(6),
 });
 
 //sign-up route
@@ -31,8 +31,8 @@ route.post("/sign-up", checkUserExists, async (req, res) => {
       password,
     });
     if (checkedCredentials.success === false) {
-      res.json({ msg: "Enter Valid Credentials" });
-    }
+      return res.json({ msg: "Enter Valid Credentials" });
+    };
     const hashPassword = await bcryptjs.hash(password, HASH_SALT);
     const newUser = await UserModel.create({
       name,
@@ -46,7 +46,7 @@ route.post("/sign-up", checkUserExists, async (req, res) => {
     const token = jwt.sign({ name, email }, SECRET_KEY);
     res.json({ msg: "User Created successfully", token });
   } catch (error) {
-    res.json({ msg: "Internal Server Error" });
+    res.json({ msg: "Internal Server Error", error });
   }
 });
 
