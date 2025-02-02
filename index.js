@@ -9,7 +9,9 @@ const app = express()
 const PORT = process.env.PORT
 
 
-app.use(cors())
+app.use(cors({
+    origin: process.env.ORIGIN
+}))
 app.use(bodyParser.json())
 
 app.use("/user", loginRoute)
