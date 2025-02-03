@@ -15,11 +15,12 @@ const checkUserExists = async (req, res, next) => {
 };
 
 const checkUserLoggedIn = async (req, res, next) => {
-  const { authorization } = req.headers;
-  if (!authorization) return res.status(403).json({ msg: "You are not Logged in" });
-  const token = authorization.split(" ")[1]
-  const isValid = jwt.verify(token, SECRET_KEY);
   try {
+    const { authorization } = req.headers;
+    if (!authorization) return res.status(403).json({ msg: "You are not Logged in" });
+    const token = authorization.split(" ")[1]
+    const isValid = jwt.verify(token, SECRET_KEY);
+  
     const user = await UserModel.findOne({email: isValid.email})
     if (isValid) {
       req.dbEmail = isValid.email;
